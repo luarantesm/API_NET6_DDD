@@ -19,6 +19,9 @@ namespace Entites.Entities
         [Column("MSN_DATA_CADASTRO")]
         public DateTime DataCadastro { get; set; }
 
+        [Column("MSN_DATA_ALTERACAO")]
+        public DateTime DataAlteracao { get; set; }
+
         [ForeignKey("ApplicationUser")]
         [Column(Order = 1)]
         public string UserId { get; set; }
