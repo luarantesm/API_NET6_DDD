@@ -25,12 +25,13 @@ namespace Infrastructure.Configuration
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApplicationUser>().ToTable("AspNetUsers").HasKey(t => t.Id);
+
             base.OnModelCreating(builder);
         }
 
         public string ObterStringConexao()
         {
-            return "Data Source=localhost,1433;Initial Catalog=APIDDD;Integrated Security=False;User ID=sa;Password=1q2w3e4r@#$;Connect Timeout=15;Encrypt=False;TrustServerCertificate=False";
+            return "Server=localhost,1433;Database=APIDDD;User ID=sa;Password=1q2w3e4r@#$";
         }
     }
 }

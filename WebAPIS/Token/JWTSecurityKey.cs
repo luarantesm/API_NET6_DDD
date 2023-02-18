@@ -1,9 +1,9 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace WebAPIS.Token
+namespace WebAPIs.Token
 {
-    public class JWTSecurityKey
+    public class JwtSecurityKey
     {
         public static SymmetricSecurityKey Create(string secret)
         {

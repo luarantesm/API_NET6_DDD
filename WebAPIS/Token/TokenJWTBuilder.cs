@@ -2,11 +2,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
-namespace WebAPIS.Token
+namespace WebAPIs.Token
 {
     public class TokenJWTBuilder
     {
-        private SecurityKey secretKey = null;
+        private SecurityKey securityKey = null;
         private string subject = "";
         private string issuer = "";
         private string audience = "";
@@ -15,7 +15,7 @@ namespace WebAPIS.Token
 
         public TokenJWTBuilder AddSecurityKey(SecurityKey securityKey)
         {
-            this.secretKey = securityKey;
+            this.securityKey = securityKey;
             return this;
         }
 
@@ -43,15 +43,21 @@ namespace WebAPIS.Token
             return this;
         }
 
-        public TokenJWTBuilder AddExpity(int expiryInMinutes)
+        public TokenJWTBuilder AddClaims(Dictionary<string, string> claims)
+        {
+            this.claims.Union(claims);
+            return this;
+        }
+
+        public TokenJWTBuilder AddExpiry(int expiryInMinutes)
         {
             this.expiryInMinutes = expiryInMinutes;
             return this;
         }
 
-        public void EnsureArguments()
+        private void EnsureArguments()
         {
-            if (this.secretKey == null)
+            if (this.securityKey == null)
                 throw new ArgumentNullException("Security Key");
 
             if (string.IsNullOrEmpty(this.subject))
@@ -70,7 +76,7 @@ namespace WebAPIS.Token
 
             var claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.Sub, this.subject),
+                new Claim(JwtRegisteredClaimNames.Sub,this.subject),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             }.Union(this.claims.Select(item => new Claim(item.Key, item.Value)));
 
@@ -80,8 +86,9 @@ namespace WebAPIS.Token
                 claims: claims,
                 expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
                 signingCredentials: new SigningCredentials(
-                    this.secretKey,
-                    SecurityAlgorithms.HmacSha256)
+                                                   this.securityKey,
+                                                   SecurityAlgorithms.HmacSha256)
+
                 );
 
             return new TokenJWT(token);

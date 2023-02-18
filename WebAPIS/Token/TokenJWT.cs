@@ -1,6 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 
-namespace WebAPIS.Token
+namespace WebAPIs.Token
 {
     public class TokenJWT
     {
@@ -12,6 +12,7 @@ namespace WebAPIS.Token
         }
 
         public DateTime ValidTo => token.ValidTo;
+
         public string value => new JwtSecurityTokenHandler().WriteToken(this.token);
     }
 }

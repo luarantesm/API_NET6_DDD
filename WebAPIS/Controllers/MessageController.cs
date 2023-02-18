@@ -3,43 +3,21 @@ using Domain.Interfaces;
 using Entites.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using WebAPIS.Models;
+using WebAPIs.Models;
 
-namespace WebAPIS.Controllers
+namespace WebAPIs.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class MessageController : ControllerBase
     {
-        private readonly IMapper _mapper;
-        private readonly IMessage _message;
+        private readonly IMapper _IMapper;
+        private readonly IMessage _IMessage;
 
-        public MessageController(IMapper mapper, IMessage message)
+        public MessageController(IMapper IMapper, IMessage IMessage)
         {
-            _mapper = mapper;
-            _message = message;
-        }
-
-        [Authorize]
-        [Produces("application/json")]
-        [HttpGet("/api/GetEntityById")]
-        public async Task<MessageViewModel> GetEntityById(Message message)
-        {
-            message = await _message.GetEntityById(message.Id);
-            var messageMap = _mapper.Map<MessageViewModel>(message);
-
-            return messageMap;
-        }
-
-        [Authorize]
-        [Produces("application/json")]
-        [HttpGet("/api/List")]
-        public async Task<List<MessageViewModel>> List()
-        {
-            var messages = await _message.List();
-            var messagesMap = _mapper.Map<List<MessageViewModel>>(messages);
-
-            return messagesMap;
+            _IMapper = IMapper;
+            _IMessage = IMessage;
         }
 
         [Authorize]
@@ -48,33 +26,49 @@ namespace WebAPIS.Controllers
         public async Task<List<Notifies>> Add(MessageViewModel message)
         {
             message.UserId = await RetornarIdUsuarioLogado();
-
-            var messageMap = _mapper.Map<Message>(message);
-            await _message.Add(messageMap);
-
+            var messageMap = _IMapper.Map<Message>(message);
+            await _IMessage.Add(messageMap);
             return messageMap.Notificacoes;
         }
 
         [Authorize]
         [Produces("application/json")]
-        [HttpPut("/api/Update")]
+        [HttpPost("/api/Update")]
         public async Task<List<Notifies>> Update(MessageViewModel message)
         {
-            var messageMap = _mapper.Map<Message>(message);
-            await _message.Update(messageMap);
-
+            var messageMap = _IMapper.Map<Message>(message);
+            await _IMessage.Update(messageMap);
             return messageMap.Notificacoes;
         }
 
         [Authorize]
         [Produces("application/json")]
-        [HttpDelete("/api/Delete")]
+        [HttpPost("/api/Delete")]
         public async Task<List<Notifies>> Delete(MessageViewModel message)
         {
-            var messageMap = _mapper.Map<Message>(message);
-            await _message.Delete(messageMap);
-
+            var messageMap = _IMapper.Map<Message>(message);
+            await _IMessage.Delete(messageMap);
             return messageMap.Notificacoes;
+        }
+
+        [Authorize]
+        [Produces("application/json")]
+        [HttpPost("/api/GetEntityById")]
+        public async Task<MessageViewModel> GetEntityById(Message message)
+        {
+            message = await _IMessage.GetEntityById(message.Id);
+            var messageMap = _IMapper.Map<MessageViewModel>(message);
+            return messageMap;
+        }
+
+        [Authorize]
+        [Produces("application/json")]
+        [HttpPost("/api/List")]
+        public async Task<List<MessageViewModel>> List()
+        {
+            var mensagens = await _IMessage.List();
+            var messageMap = _IMapper.Map<List<MessageViewModel>>(mensagens);
+            return messageMap;
         }
 
         private async Task<string> RetornarIdUsuarioLogado()

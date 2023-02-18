@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text;
-using WebAPIS.Models;
-using WebAPIS.Token;
+using WebAPIs.Models;
+using WebAPIs.Token;
 
-namespace WebAPIS.Controllers
+namespace WebAPIs.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -17,7 +17,8 @@ namespace WebAPIS.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public UsersController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public UsersController(UserManager<ApplicationUser> userManager,
+            SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -28,29 +29,28 @@ namespace WebAPIS.Controllers
         [HttpPost("/api/CriarTokenIdentity")]
         public async Task<IActionResult> CriarTokenIdentity([FromBody] Login login)
         {
-            //Verifica Senha/Email
-            if (string.IsNullOrWhiteSpace(login.Senha) || string.IsNullOrWhiteSpace(login.Email))
+            if (string.IsNullOrWhiteSpace(login.email) || string.IsNullOrWhiteSpace(login.senha))
             {
                 return Unauthorized();
             }
 
-            //Verifica Login Valido
-            var resultado = await _signInManager.PasswordSignInAsync(login.Email, login.Senha, false, lockoutOnFailure: false);
+            var resultado = await
+                _signInManager.PasswordSignInAsync(login.email, login.senha, false, lockoutOnFailure: false);
 
             if (resultado.Succeeded)
             {
-                //Busca Usuario
-                var userCurrent = await _userManager.FindByEmailAsync(login.Email);
+                // Recupera Usuário Logado
+                var userCurrent = await _userManager.FindByEmailAsync(login.email);
+                var idUsuario = userCurrent.Id;
 
-                //Gera Token Usuario
                 var token = new TokenJWTBuilder()
-                    .AddSecurityKey(JWTSecurityKey.Create("Secret_Key-1234568"))
-                    .AddSubject("Empresa - Dev Net Core")
-                    .AddIssuer("Teste.Security.Bearer")
-                    .AddAudience("Teste.Security.Bearer")
-                    .AddClaim("idUsuario", userCurrent.Id)
-                    .AddExpity(5)
-                    .Builder();
+                    .AddSecurityKey(JwtSecurityKey.Create("Secret_Key-12345678"))
+                .AddSubject("Empresa - Canal Dev Net Core")
+                .AddIssuer("Teste.Securiry.Bearer")
+                .AddAudience("Teste.Securiry.Bearer")
+                .AddClaim("idUsuario", idUsuario)
+                .AddExpiry(5)
+                .Builder();
 
                 return Ok(token.value);
             }
@@ -62,47 +62,40 @@ namespace WebAPIS.Controllers
 
         [AllowAnonymous]
         [Produces("application/json")]
-        [HttpPost("/api/AdicionarUsuarioIdentity")]
-        public async Task<IActionResult> AdicionarUsuarioIdentity([FromBody] Login login)
+        [HttpPost("/api/AdicionaUsuarioIdentity")]
+        public async Task<IActionResult> AdicionaUsuarioIdentity([FromBody] Login login)
         {
-            if (string.IsNullOrWhiteSpace(login.Senha) || string.IsNullOrWhiteSpace(login.Email))
-            {
+            if (string.IsNullOrWhiteSpace(login.email) || string.IsNullOrWhiteSpace(login.senha))
                 return Ok("Falta alguns dados");
-            }
 
             var user = new ApplicationUser
             {
-                UserName = login.Email,
-                Email = login.Email,
-                CPF = login.CPF,
-                Tipo = TipoUsuario.Comum
+                UserName = login.email,
+                Email = login.email,
+                CPF = login.cpf,
+                Tipo = TipoUsuario.Comum,
             };
 
-            var resultado = await _userManager.CreateAsync(user, login.Senha);
+            var resultado = await _userManager.CreateAsync(user, login.senha);
 
             if (resultado.Errors.Any())
             {
                 return Ok(resultado.Errors);
             }
 
-            
-            //Geração de Confirmação caso precise
+            // Geração de Confirmação caso precise
             var userId = await _userManager.GetUserIdAsync(user);
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            //Retorno Email //Força a confirmação via e-mail
+            // retorno email
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
-            var confirmEmail = await _userManager.ConfirmEmailAsync(user, code);
+            var resultado2 = await _userManager.ConfirmEmailAsync(user, code);
 
-            if (confirmEmail.Succeeded)
-            {
-                return Ok("Usuario Adiconado com sucesso");
-            }
+            if (resultado2.Succeeded)
+                return Ok("Usuário Adicionado com Sucesso");
             else
-            {
-                return Ok("Erro ao confirmar usuario");
-            }
+                return Ok("Erro ao confirmar usuários");
         }
     }
 }
