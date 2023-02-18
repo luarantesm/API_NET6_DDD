@@ -30,7 +30,7 @@ namespace Infrastructure.Configuration
 
         public string ObterStringConexao()
         {
-            return "Data Source=localhost,1433;Initial Catalog=EXEMPLO_API_DDD_2022;Integrated Security=False;User ID=sa;Password=1q2w3e4r@#$;Connect Timeout=15;Encrypt=False;TrustServerCertificate=False";
+            return "Data Source=localhost,1433;Initial Catalog=APIDDD;Integrated Security=False;User ID=sa;Password=1q2w3e4r@#$;Connect Timeout=15;Encrypt=False;TrustServerCertificate=False";
         }
     }
 }
