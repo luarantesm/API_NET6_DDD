@@ -25,7 +25,7 @@ namespace WebAPIS.Token
             return this;
         }
 
-        public TokenJWTBuilder AddIssuert(string issuer)
+        public TokenJWTBuilder AddIssuer(string issuer)
         {
             this.issuer = issuer;
             return this;
